@@ -2,11 +2,14 @@ const express = require("express")
 const mongoose=require("mongoose")
 const dotenv=require("dotenv")
 
+const incommingReqLogger= require("./middlewares/logger")
+
 dotenv.config()
 const app = express()
 
 const PORT= process.env.PORT || 4005
 
+app.use(incommingReqLogger)
 
 
 app.get("/",(req,res)=>{
