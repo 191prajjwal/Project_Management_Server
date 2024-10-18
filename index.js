@@ -2,12 +2,14 @@ const express = require("express")
 const mongoose=require("mongoose")
 const dotenv=require("dotenv")
 
-const incommingReqLogger= require("./middlewares/logger")
+const userRoutes= require("./routes/userRoutes")
 
 dotenv.config()
 const app = express()
-
 const PORT= process.env.PORT || 4005
+
+const incommingReqLogger= require("./middlewares/logger")
+app.use(express.json())
 
 app.use(incommingReqLogger)
 
@@ -15,6 +17,8 @@ app.use(incommingReqLogger)
 app.get("/",(req,res)=>{
     res.send("Working fine")
 })
+
+app.use("/api/v1/users",userRoutes)
 
 
 app.listen(PORT,()=>{
