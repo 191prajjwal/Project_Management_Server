@@ -4,6 +4,7 @@ const User= require("../models/userModel")
 const isValidEmail= require("../utils/helper")
 const bcrypt= require("bcrypt")
 const jwt= require("jsonwebtoken")
+const authMiddleware= require("../middlewares/auth")
 
 
 router.post("/register",async(req,res)=>{
