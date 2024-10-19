@@ -8,6 +8,8 @@ const taskRoutes=require("./routes/taskRoutes")
 
 const analyticsRoute= require("./routes/taskAnalyticsRoute")
 
+const sharedLinkRoute= require("./routes/sharedLinkRoute")
+
 dotenv.config()
 const app = express()
 const PORT= process.env.PORT || 4005
@@ -25,6 +27,7 @@ app.get("/",(req,res)=>{
 app.use("/api/v1/users",userRoutes)
 app.use("/api/v1/tasks",taskRoutes)
 app.use("/api/v1/info",analyticsRoute)
+app.use("/api/v1/link",sharedLinkRoute)
 
 
 app.listen(PORT,()=>{

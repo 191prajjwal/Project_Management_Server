@@ -46,6 +46,8 @@ async function taskAnalytics (userId){
     catch(err)
     {
         console.log("error occured",err)
+        
+        throw new Error("Error fetching analytics data")
 
     }
 
