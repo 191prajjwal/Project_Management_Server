@@ -6,6 +6,8 @@ const userRoutes= require("./routes/userRoutes")
 
 const taskRoutes=require("./routes/taskRoutes")
 
+const analyticsRoute= require("./routes/taskAnalyticsRoute")
+
 dotenv.config()
 const app = express()
 const PORT= process.env.PORT || 4005
@@ -22,6 +24,7 @@ app.get("/",(req,res)=>{
 
 app.use("/api/v1/users",userRoutes)
 app.use("/api/v1/tasks",taskRoutes)
+app.use("/api/v1/info",analyticsRoute)
 
 
 app.listen(PORT,()=>{
