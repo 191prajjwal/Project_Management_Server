@@ -4,6 +4,8 @@ const dotenv=require("dotenv")
 
 const userRoutes= require("./routes/userRoutes")
 
+const taskRoutes=require("./routes/taskRoutes")
+
 dotenv.config()
 const app = express()
 const PORT= process.env.PORT || 4005
@@ -19,6 +21,7 @@ app.get("/",(req,res)=>{
 })
 
 app.use("/api/v1/users",userRoutes)
+app.use("/api/v1/tasks",taskRoutes)
 
 
 app.listen(PORT,()=>{
