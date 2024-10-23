@@ -101,6 +101,60 @@ router.post("/login",async(req,res)=>{
 
 
 
+router.post("/update/settings", authMiddleware, async (req, res) => {
+    const {_id, name , email , oldPassword ,newPassword} = req.body;
+  
+    try {
+      let updateCount = 0;
+      if (name) updateCount++;
+      if (email) updateCount++;
+      if (newPassword) updateCount++;
+  
+      if (updateCount > 1) {
+        return res.status(400).json({ error: "Only one field (name, email, or password) can be updated at a time." });
+      }
+  
+      if (newPassword) {
+        if (!oldPassword) {
+          return res.status(400).json({ error: "Old password is required to update the password." });
+        }
+  
+        const user = await User.findById(_id);
+        const isPasswordCorrect = await bcrypt.compare(oldPassword, user.password);
+        if (!isPasswordCorrect) {
+          return res.status(400).json({ error: "Old password is incorrect." });
+        }
+  
+        if (newPassword.length < 8) {
+          return res.status(400).json({ error: "Password must be at least 8 characters long." });
+        }
+  
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        const result = await User.findOneAndUpdate({ _id }, {
+          $set: { password: hashedPassword }
+        }, { new: true });
+  
+        return res.status(200).json({ message: "Password updated successfully.", updatedDocument: result });
+      }
+  
+
+      const updateFields = {};
+      if (name) updateFields.name = name.trim();
+      if (email) updateFields.email = email.trim();
+  
+      const result = await User.findOneAndUpdate({ _id }, { $set: updateFields }, { new: true });
+  
+      if (!result) {
+        return res.status(404).json({ error: "Update failed." });
+      }
+  
+      return res.status(200).json({ message: "Updated successfully.", updatedDocument: result });
+    } catch (error) {
+      console.error("Error updating:", error);
+      return res.status(500).json({ error: "An error occurred while updating." });
+    }
+  });
+  
 
 
 module.exports= router
