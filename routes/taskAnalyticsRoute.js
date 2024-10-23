@@ -28,7 +28,7 @@ async function taskAnalytics (userId){
 
         const dueDateTasks= await Task.countDocuments({userId, dueDate:{$ne:null,$lte:new Date()}})
 
-        const data={
+        const anayticsData={
             todoTasks,
             inProgressTasks,
             backlogTasks,
@@ -39,7 +39,7 @@ async function taskAnalytics (userId){
             dueDateTasks
         }
 
-        return data
+        return anayticsData
 
 
     }
@@ -58,12 +58,12 @@ router.get("/analytics/:userId",authMiddleware,async (req,res)=>{
 
     const {userId}= req.params
     try{
-        const data= await taskAnalytics(userId)
-        res.status(200).json(data)
+        const userData= await taskAnalytics(userId)
+        res.status(200).json(userData)
     }
     catch(error)
     {
-        res.status(500).json({success:false,message:"Error fetching analytics data"})
+        res.status(500).json({success:false,error:"Error fetching analytics data"})
     }
 
     
