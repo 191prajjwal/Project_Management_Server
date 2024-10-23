@@ -12,7 +12,7 @@ const taskSchema= new mongoose.Schema({
     },
     checklist:[{
         taskName:String,
-        isChecked:{
+        completed:{
             type:Boolean,
             default:false
         }
@@ -20,7 +20,7 @@ const taskSchema= new mongoose.Schema({
     dueDate:{
         type:Date
     },
-    status:{
+    board:{
         type:String,
         enum:["toDo","inProgress","backlog","done"],
         required:true

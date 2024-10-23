@@ -1,6 +1,8 @@
 const express = require("express")
 const mongoose=require("mongoose")
 const dotenv=require("dotenv")
+const cors= require("cors")
+const bodyParser= require("body-parser")
 
 const userRoutes= require("./routes/userRoutes")
 
@@ -15,7 +17,9 @@ const app = express()
 const PORT= process.env.PORT || 4005
 
 const incommingReqLogger= require("./middlewares/logger")
-app.use(express.json())
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+app.use(cors())
 
 app.use(incommingReqLogger)
 
