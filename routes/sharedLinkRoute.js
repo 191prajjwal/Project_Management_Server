@@ -16,9 +16,9 @@ async function linkGenerator(taskId){
         }
 
 
-        const sharedLink= `${URL}/public/sharedtasklink/${task._id}`
+        const shareableLink= `${URL}/public/sharedtasklink/${task._id}`
 
-        return sharedLink
+        return shareableLink
     }
 
     catch(err)
@@ -32,14 +32,14 @@ router.get("/sharelink/:taskid",async(req,res)=>{
    try {
     
     const {taskId}= req.params
-    const sharedLink= await linkGenerator(taskId)
-    res.status(200).json({sharedLink})
+    const shareableLink= await linkGenerator(taskId)
+    res.status(200).json({shareableLink})
 
    }
     catch (err) {
 
         console.log(err)
-        res.status(500).json({success:false,message:"Error generating shared link"})
+        res.status(500).json({success:false,error:"Error generating shared link"})
     
    }
 })
