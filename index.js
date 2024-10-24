@@ -15,20 +15,19 @@ const PORT = process.env.PORT || 4005;
 
 const incommingReqLogger = require("./middlewares/logger");
 
-// Middleware
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-// CORS configuration to allow requests from Vercel frontend
+
 app.use(cors({
-  origin: 'https://project-management-client-five.vercel.app', // Add your frontend URL
+  origin: '*', 
   methods: 'GET,POST,PUT,DELETE',
-  credentials: true
+  credentials: true,
+  allowedHeaders: 'Content-Type,Authorization'
 }));
 
 app.use(incommingReqLogger);
 
-// Routes
 app.get("/", (req, res) => {
   res.send("Working fine");
 });
@@ -38,9 +37,8 @@ app.use("/api/v1/tasks", taskRoutes);
 app.use("/api/v1/info", analyticsRoute);
 app.use("/api/v1/link", sharedLinkRoute);
 
-// Server and DB connection
 app.listen(PORT, () => {
-  console.log(`server is live at port ${PORT}`);
+  console.log(`Server is live at port ${PORT}`);
   mongoose.connect(process.env.MONGODB_URL).then(() => {
     console.log("Database connected");
   }).catch((err) => {
