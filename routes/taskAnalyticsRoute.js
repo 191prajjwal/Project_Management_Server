@@ -9,13 +9,13 @@ async function taskAnalytics (userId){
 
     try{
 
-        const todoTasks= await Task.countDocuments({userId,status:"toDo"})
+        const todoTasks= await Task.countDocuments({userId,board:"toDo"})
 
-        const inProgressTasks= await Task.countDocuments({userId,status:"inProgress"})
+        const inProgressTasks= await Task.countDocuments({userId,board:"inProgress"})
 
-        const backlogTasks= await Task.countDocuments({userId,status:"backlog"})
+        const backlogTasks= await Task.countDocuments({userId,board:"backlog"})
 
-        const doneTasks= await Task.countDocuments({userId,status:"done"})
+        const completedTasks= await Task.countDocuments({userId,board:"done"})
 
 
 
@@ -32,7 +32,7 @@ async function taskAnalytics (userId){
             todoTasks,
             inProgressTasks,
             backlogTasks,
-            doneTasks,
+            completedTasks,
             lowPriorityTasks,
             highPriorityTasks,
             moderatePriorityTasks,
