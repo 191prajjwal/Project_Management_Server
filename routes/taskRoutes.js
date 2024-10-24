@@ -43,6 +43,23 @@ router.get("/editview/:taskId",authMiddleware,async(req,res)=>{
 
 
 
+
+router.get("/publicview/:taskId",async(req,res)=>{
+
+    try{
+        const {taskId}=req.params
+        const tasks= await Task.find({_id:taskId})
+        res.status(200).json({tasks})
+    }
+    catch(err)
+    {
+        res.status(500).json({error:"Error fetching tasks"})
+    }
+
+})
+
+
+
 router.put("/update/:taskId",authMiddleware,async(req,res)=>{
 
     try {
