@@ -154,6 +154,8 @@ router.post("/update/settings", authMiddleware, async (req, res) => {
       return res.status(500).json({ error: "An error occurred while updating." });
     }
   });
+
+ 
   
 
 
