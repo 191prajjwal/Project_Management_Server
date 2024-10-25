@@ -10,6 +10,8 @@ router.post("/create",authMiddleware,async (req,res)=>{
     try {
         const {title,priority,checklist,dueDate,board,userId}= req.body
 
+        console.log("this is dueDate",dueDate)
+
     const newTask= new Task({title,priority,checklist,dueDate,board,userId})
 
     await newTask.save()
@@ -110,37 +112,47 @@ router.delete("/delete/:taskId",authMiddleware,async(req,res)=>{
 
 
 
-router.post("/filter",authMiddleware,async(req,res)=>{
-
+router.post("/filter", authMiddleware, async (req, res) => {
     try {
-        const { userId, boardDate } = req.body;
+      const { userId, boardDate } = req.body;
   
-        let startDate, endDate;
-        if (boardDate === 'today') {
-          endDate = new Date();
-          startDate = new Date(endDate);
-          startDate.setHours(startDate.getHours() - 24);
-        } else if (boardDate === 'thisWeek') {
-          const today = new Date();
-          const dayOfWeek = today.getDay();
-          startDate = new Date(today);
-          startDate.setDate(today.getDate() - dayOfWeek);
-          endDate = new Date(startDate);
-          endDate.setDate(startDate.getDate() + 6);
-        } else if (boardDate === 'thisMonth') {
-          const today = new Date();
-          startDate = new Date(today.getFullYear(), today.getMonth(), 1);
-          endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-        }
-
-        const tasksToDo = await Task.find({ userId, createdDate: { $gte: startDate, $lte: endDate } });
-        res.status(200).json({ tasksToDo });
-      } catch (error) {
-        res.status(500).json({ error: 'Error retrieving tasks' });
+      let startDate, endDate;
+      if (boardDate === 'today') {
+        endDate = new Date();
+        startDate = new Date(endDate);
+        startDate.setHours(0, 0, 0, 0); 
+        endDate.setHours(23, 59, 59, 999); 
+      } else if (boardDate === 'thisWeek') {
+        const today = new Date();
+        const dayOfWeek = today.getDay();
+        startDate = new Date(today);
+        startDate.setDate(today.getDate() - dayOfWeek); 
+        startDate.setHours(0, 0, 0, 0); 
+        endDate = new Date(startDate);
+        endDate.setDate(startDate.getDate() + 6); 
+        endDate.setHours(23, 59, 59, 999);
+      } else if (boardDate === 'thisMonth') {
+        const today = new Date();
+        startDate = new Date(today.getFullYear(), today.getMonth(), 1); 
+        endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0); 
+        endDate.setHours(23, 59, 59, 999); 
       }
-    
-
-})
+  
+      const tasksToDo = await Task.find({
+        userId,
+        $or: [
+          { dueDate: { $gte: startDate, $lte: endDate } }, 
+          { dueDate: null } 
+        ]
+      });
+  
+      res.status(200).json({ tasksToDo });
+    } catch (error) {
+      res.status(500).json({ error: 'Error retrieving tasks' });
+    }
+  });
+  
+  
 
 
 router.post("/update/board",authMiddleware,async(req,res)=>{
