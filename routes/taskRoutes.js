@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Task = require("../models/taskModel");
 const authMiddleware = require("../middlewares/auth");
+const { findOne } = require("../models/userModel");
 
 router.post("/create", authMiddleware, async (req, res) => {
   try {
@@ -15,8 +16,7 @@ router.post("/create", authMiddleware, async (req, res) => {
       checklist,
       dueDate,
       board,
-      userId,
-      assignTo,
+      userId
     });
 
     await newTask.save();
@@ -57,33 +57,63 @@ router.get("/publicview/:taskId", async (req, res) => {
 
 
 
+// router.put("/update/:taskId", authMiddleware, async (req, res) => {
+//   try {
+//     const { taskId } = req.params;
+//     const { title, priority, checklist, dueDate, userId, assignTo } = req.body; 
+
+//     const updatedTask = await Task.findByIdAndUpdate(
+//       { _id: taskId },
+//       { title, priority, checklist, dueDate, userId, assignTo }, 
+//       { new: true }
+//     );
+
+//     if (!updatedTask) {
+//       return res.status(404).json({ success: false, error: "Task not found" });
+//     }
+
+//     res
+//       .status(200)
+//       .json({
+//         success: true,
+//         message: "Task successfully updated",
+//         task: updatedTask,
+//       });
+//   } catch (err) {
+//     res.status(500).json({ error: "Error updating the task" });
+//   }
+// });
+
+
 router.put("/update/:taskId", authMiddleware, async (req, res) => {
   try {
     const { taskId } = req.params;
-    const { title, priority, checklist, dueDate, userId, assignTo } = req.body; 
-
-    const updatedTask = await Task.findByIdAndUpdate(
-      { _id: taskId },
-      { title, priority, checklist, dueDate, userId, assignTo }, 
-      { new: true }
-    );
-
-    if (!updatedTask) {
+    const { title, priority, checklist, dueDate, board, assignTo } = req.body;
+    
+    // Find the task without modifying ownership (userId)
+    const task = await Task.findById(taskId);
+    if (!task) {
       return res.status(404).json({ success: false, error: "Task not found" });
     }
 
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Task successfully updated",
-        task: updatedTask,
-      });
-  } catch (err) {
+    // Update task fields, but not userId
+    task.title = title || task.title;
+    task.priority = priority || task.priority;
+    task.checklist = checklist || task.checklist;
+    task.dueDate = dueDate || task.dueDate;
+    task.board = board || task.board;
+    task.assignTo = assignTo || task.assignTo;
+
+    await task.save();
+    res.status(200).json({
+      success: true,
+      message: "Task updated successfully",
+      task,
+    });
+  } catch (error) {
     res.status(500).json({ error: "Error updating the task" });
   }
 });
-
 
 
 
@@ -110,78 +140,83 @@ router.delete("/delete/:taskId", authMiddleware, async (req, res) => {
   }
 });
 
+  
 
 router.post("/filter", authMiddleware, async (req, res) => {
-    try {
-      const { userId, boardDate } = req.body;
-  
-      let startDate, endDate;
+  try {
+    const { userId, boardDate } = req.body;
 
-      if (boardDate === "today") {
-        endDate = new Date();
-        startDate = new Date(endDate);
-        startDate.setHours(0, 0, 0, 0);
-        endDate.setHours(23, 59, 59, 999);
-      }
-      
-      else if (boardDate === "thisWeek") {
-        const today = new Date();
-        const dayOfWeek = today.getDay();
-        startDate = new Date(today);
-        startDate.setDate(today.getDate() - dayOfWeek);
-        startDate.setHours(0, 0, 0, 0);
-        endDate = new Date(startDate);
-        endDate.setDate(startDate.getDate() + 6);
-        endDate.setHours(23, 59, 59, 999);
-      } 
-      
-      else if (boardDate === "thisMonth") {
-        const today = new Date();
-        startDate = new Date(today.getFullYear(), today.getMonth(), 1);
-        endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-        endDate.setHours(23, 59, 59, 999);
-      }
-  
-      console.log("userId:", userId);
-      console.log("Date Range:", startDate, endDate);
-  
-     
-      let tasksToDo;
-      if (startDate && endDate) { 
-        tasksToDo = await Task.find({
-          $or: [
-            {
-              userId,
-              dueDate: { $gte: startDate, $lte: endDate }
-            },
+    let startDate, endDate;
 
-            {
-              userId,
-              dueDate: null 
-            },
-
-            {
-              assignTo: userId,
-              dueDate: { $gte: startDate, $lte: endDate }
-            }
-          ]
-        });
-      } else { 
-        tasksToDo = await Task.find({
-          $or: [
-            { userId },
-            { assignTo: userId }
-          ]
-        });
-      }
-  
-      res.status(200).json({ tasksToDo });
-    } catch (error) {
-      console.error("Error fetching tasks:", error);
-      res.status(500).json({ error: "Error retrieving tasks" });
+    if (boardDate === "today") {
+      endDate = new Date();
+      startDate = new Date(endDate);
+      startDate.setHours(0, 0, 0, 0);
+      endDate.setHours(23, 59, 59, 999);
+    } else if (boardDate === "thisWeek") {
+      const today = new Date();
+      const dayOfWeek = today.getDay();
+      startDate = new Date(today);
+      startDate.setDate(today.getDate() - dayOfWeek);
+      startDate.setHours(0, 0, 0, 0);
+      endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + 6);
+      endDate.setHours(23, 59, 59, 999);
+    } else if (boardDate === "thisMonth") {
+      const today = new Date();
+      startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+      endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+      endDate.setHours(23, 59, 59, 999);
     }
-  });
+
+    console.log("userId:", userId);
+    console.log("Date Range:", startDate, endDate);
+
+    let tasksToDo;
+    if (startDate && endDate) {
+      tasksToDo = await Task.find({
+        $or: [
+      
+          {
+            userId,
+            $or: [
+              { dueDate: { $gte: startDate, $lte: endDate } },
+              { dueDate: null }
+            ]
+          },
+          
+          {
+            assignTo: userId,
+            $or: [
+              { dueDate: { $gte: startDate, $lte: endDate } },
+              { dueDate: null }
+            ]
+          }
+        ]
+      });
+    } else {
   
+      tasksToDo = await Task.find({
+        $or: [
+          { userId },
+          { assignTo: userId }
+        ]
+      });
+    }
+
+   
+    res.status(200).json({ tasksToDo });
+  } catch (error) {
+    console.error("Error fetching tasks:", error);
+    res.status(500).json({ error: "Error retrieving tasks" });
+  }
+});
+
+
+
+
+
+
 
 router.post("/update/board", authMiddleware, async (req, res) => {
   try {
