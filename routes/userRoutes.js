@@ -155,8 +155,63 @@ router.post("/update/settings", authMiddleware, async (req, res) => {
     }
   });
 
- 
+
+
+  router.get("/userdata", authMiddleware, async (req, res) => {
+    try {
+      
+      const requestingUserId = req.userId;
   
+      const users = await User.find(
+        { _id: { $ne: requestingUserId } }, 
+        { _id: 1, email: 1, name: 1 }      
+      );
+  
+      const userData = users.map(user => ({
+        id: user._id,
+        email: user.email,
+        name: user.name
+      }));
+  
+      return res.status(200).json({ success: true, userData });
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      return res.status(500).json({ success: false, error: "An error occurred while fetching user data." });
+    }
+  });
+  
+
+
+
+
+
+  router.post("/share/dashboard", authMiddleware, async (req, res) => {
+    try {
+        const { email } = req.body; 
+        const userId = req.user.id; 
+
+        const userToShare = await User.findOne({ email });
+        if (!userToShare) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+       
+        await User.findByIdAndUpdate(userId, { sharedWith: userToShare._id });
+
+        res.status(200).json({ success: true, message: "Dashboard shared successfully" });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ success: false, error: "Error sharing dashboard" });
+    }
+});
+
+
+
+
+
+
+
+
 
 
 module.exports= router

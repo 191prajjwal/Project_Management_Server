@@ -8,6 +8,7 @@ const userRoutes = require("./routes/userRoutes");
 const taskRoutes = require("./routes/taskRoutes");
 const analyticsRoute = require("./routes/taskAnalyticsRoute");
 const sharedLinkRoute = require("./routes/sharedLinkRoute");
+const assignTaskRoute=require("./routes/assignTaskRoute")
 
 dotenv.config();
 const app = express();
@@ -36,6 +37,7 @@ app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/tasks", taskRoutes);
 app.use("/api/v1/info", analyticsRoute);
 app.use("/api/v1/link", sharedLinkRoute);
+app.use("/api/v1/assign",assignTaskRoute)
 
 app.listen(PORT, () => {
   console.log(`Server is live at port ${PORT}`);
