@@ -3,7 +3,6 @@ const jwt= require("jsonwebtoken")
  function authMiddleware(req,res,next){
     let token= req.header("Authorization")
 
-    console.log(token)
 
     if(!token){
         return res.status(401).json({success:false,message:"User is not logged in"})

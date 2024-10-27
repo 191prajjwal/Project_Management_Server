@@ -5,7 +5,6 @@ const Task= require("../models/taskModel")
 
 async function linkGenerator(taskId){
     const URL= process.env.FRONTEND_URL
-    console.log(URL)
 
     try{
         const task= await Task.findById({_id:taskId})
@@ -17,8 +16,6 @@ async function linkGenerator(taskId){
 
 
         const shareableLink= `${URL}/public/sharedtasklink/${task._id}`
-
-        console.log(shareableLink)
         return shareableLink
     }
 

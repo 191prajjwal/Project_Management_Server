@@ -8,7 +8,6 @@ router.post("/tasks", authMiddleware, async (req, res) => {
  
     try {
       const { userId, assignId } = req.body;
-  console.log(userId, assignId)
       const tasks = await Task.find({ userId });
       if (tasks.length === 0) {
         return res.status(404).json({ message: "No tasks found for the specified userId." });
@@ -20,7 +19,6 @@ router.post("/tasks", authMiddleware, async (req, res) => {
       );
       res.status(200).json({ message: "Tasks successfully assigned.", tasksAssigned: tasks.length });
     } catch (error) {
-      console.log(error)
       res.status(500).json({ error: "Error assigning tasks to user." });
     }
   });

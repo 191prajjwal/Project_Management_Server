@@ -1,14 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const Task = require("../models/taskModel");
+const User= require("../models/userModel")
 const authMiddleware = require("../middlewares/auth");
-const { findOne } = require("../models/userModel");
 
 router.post("/create", authMiddleware, async (req, res) => {
   try {
     const { title, priority, checklist, dueDate, board, userId,assignTo } = req.body;
 
-    console.log("this is dueDate", dueDate);
 
     const newTask = new Task({
       title,
@@ -38,7 +37,6 @@ router.get("/editview/:taskId", authMiddleware, async (req, res) => {
   try {
     const { taskId } = req.params;
     const tasks = await Task.find({ _id: taskId });
-    console.log(tasks)
     res.status(200).json({ tasks });
   } catch (err) {
     res.status(500).json({ error: "Error fetching tasks" });
@@ -140,7 +138,8 @@ router.delete("/delete/:taskId", authMiddleware, async (req, res) => {
   }
 });
 
-  
+
+
 
 router.post("/filter", authMiddleware, async (req, res) => {
   try {
@@ -169,14 +168,12 @@ router.post("/filter", authMiddleware, async (req, res) => {
       endDate.setHours(23, 59, 59, 999);
     }
 
-    console.log("userId:", userId);
-    console.log("Date Range:", startDate, endDate);
+  
 
     let tasksToDo;
     if (startDate && endDate) {
       tasksToDo = await Task.find({
         $or: [
-      
           {
             userId,
             $or: [
@@ -184,7 +181,6 @@ router.post("/filter", authMiddleware, async (req, res) => {
               { dueDate: null }
             ]
           },
-          
           {
             assignTo: userId,
             $or: [
@@ -195,7 +191,6 @@ router.post("/filter", authMiddleware, async (req, res) => {
         ]
       });
     } else {
-  
       tasksToDo = await Task.find({
         $or: [
           { userId },
@@ -204,13 +199,33 @@ router.post("/filter", authMiddleware, async (req, res) => {
       });
     }
 
-   
-    res.status(200).json({ tasksToDo });
+    // Step 1: Fetch all users assigned to tasks
+    const assignedUserIds = tasksToDo.map(task => task.assignTo).filter(Boolean); // Get unique user IDs
+    const assignedUsers = await User.find({ _id: { $in: assignedUserIds } }); // Fetch user details
+    const assignedUsersMap = {}; // Create a map for easy lookup
+
+    assignedUsers.forEach(user => {
+      assignedUsersMap[user._id] = user.name; // Assuming 'name' is the field for the user's name
+    });
+
+    // Step 4: Include usernames in tasksToDo
+    tasksToDo = tasksToDo.map(task => {
+      const assignedUserName = assignedUsersMap[task.assignTo] || ""; // Fallback if no user is found
+
+      return {
+        ...task.toObject(), // Convert task to plain object
+        assignedUserName // Add the username to the task
+      };
+    });
+
+    console.log(tasksToDo)
+    res.status(200).json({ tasksToDo }); 
   } catch (error) {
     console.error("Error fetching tasks:", error);
     res.status(500).json({ error: "Error retrieving tasks" });
   }
 });
+
 
 
 
