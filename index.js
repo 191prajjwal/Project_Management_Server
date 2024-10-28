@@ -30,7 +30,7 @@ app.use(cors({
 app.use(incommingReqLogger);
 
 app.get("/", (req, res) => {
-  res.send("Working fine");
+  res.status(200).json({success:true,message:"Server is Live now"});
 });
 
 app.use("/api/v1/users", userRoutes);

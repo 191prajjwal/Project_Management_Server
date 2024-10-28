@@ -199,26 +199,26 @@ router.post("/filter", authMiddleware, async (req, res) => {
       });
     }
 
-    // Step 1: Fetch all users assigned to tasks
-    const assignedUserIds = tasksToDo.map(task => task.assignTo).filter(Boolean); // Get unique user IDs
-    const assignedUsers = await User.find({ _id: { $in: assignedUserIds } }); // Fetch user details
-    const assignedUsersMap = {}; // Create a map for easy lookup
+   
+    const assignedUserIds = tasksToDo.map(task => task.assignTo).filter(Boolean); 
+    const assignedUsers = await User.find({ _id: { $in: assignedUserIds } }); 
+    const assignedUsersMap = {};
 
     assignedUsers.forEach(user => {
-      assignedUsersMap[user._id] = user.name; // Assuming 'name' is the field for the user's name
+      assignedUsersMap[user._id] = user.name; 
     });
 
-    // Step 4: Include usernames in tasksToDo
+  
     tasksToDo = tasksToDo.map(task => {
-      const assignedUserName = assignedUsersMap[task.assignTo] || ""; // Fallback if no user is found
+      const assignedUserName = assignedUsersMap[task.assignTo] || "";
 
       return {
-        ...task.toObject(), // Convert task to plain object
-        assignedUserName // Add the username to the task
+        ...task.toObject(), 
+        assignedUserName 
       };
     });
 
-    console.log(tasksToDo)
+
     res.status(200).json({ tasksToDo }); 
   } catch (error) {
     console.error("Error fetching tasks:", error);
