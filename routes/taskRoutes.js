@@ -55,46 +55,18 @@ router.get("/publicview/:taskId", async (req, res) => {
 
 
 
-// router.put("/update/:taskId", authMiddleware, async (req, res) => {
-//   try {
-//     const { taskId } = req.params;
-//     const { title, priority, checklist, dueDate, userId, assignTo } = req.body; 
-
-//     const updatedTask = await Task.findByIdAndUpdate(
-//       { _id: taskId },
-//       { title, priority, checklist, dueDate, userId, assignTo }, 
-//       { new: true }
-//     );
-
-//     if (!updatedTask) {
-//       return res.status(404).json({ success: false, error: "Task not found" });
-//     }
-
-//     res
-//       .status(200)
-//       .json({
-//         success: true,
-//         message: "Task successfully updated",
-//         task: updatedTask,
-//       });
-//   } catch (err) {
-//     res.status(500).json({ error: "Error updating the task" });
-//   }
-// });
-
-
 router.put("/update/:taskId", authMiddleware, async (req, res) => {
   try {
     const { taskId } = req.params;
     const { title, priority, checklist, dueDate, board, assignTo } = req.body;
     
-    // Find the task without modifying ownership (userId)
+   
     const task = await Task.findById(taskId);
     if (!task) {
       return res.status(404).json({ success: false, error: "Task not found" });
     }
 
-    // Update task fields, but not userId
+
     task.title = title || task.title;
     task.priority = priority || task.priority;
     task.checklist = checklist || task.checklist;
@@ -225,12 +197,6 @@ router.post("/filter", authMiddleware, async (req, res) => {
     res.status(500).json({ error: "Error retrieving tasks" });
   }
 });
-
-
-
-
-
-
 
 
 router.post("/update/board", authMiddleware, async (req, res) => {

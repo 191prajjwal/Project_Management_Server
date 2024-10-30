@@ -99,8 +99,6 @@ router.post("/login",async(req,res)=>{
 
 })
 
-
-
 router.post("/update/settings", authMiddleware, async (req, res) => {
     const {_id, name , email , oldPassword ,newPassword} = req.body;
   
@@ -180,11 +178,6 @@ router.post("/update/settings", authMiddleware, async (req, res) => {
     }
   });
   
-
-
-
-
-
   router.post("/share/dashboard", authMiddleware, async (req, res) => {
     try {
         const { email } = req.body; 
@@ -204,14 +197,6 @@ router.post("/update/settings", authMiddleware, async (req, res) => {
         res.status(500).json({ success: false, error: "Error sharing dashboard" });
     }
 });
-
-
-
-
-
-
-
-
 
 
 module.exports= router
